@@ -8,7 +8,20 @@ export default function Header() {
   const [currentQuote, setCurrentQuote] = useState<string>("")
   const [lastIndex, setLastIndex] = useState<number | null>(null)
 
-  // Function to pick a random quote from selected category, avoiding repeats
+  // Load stored theme on mount
+  useEffect(() => {
+    const storedType = localStorage.getItem('quoteType') as QuoteCategory | null
+    if (storedType && quotesData[storedType]) {
+      setQuoteType(storedType)
+    }
+  }, [])
+
+  // Update localStorage whenever the quote type changes
+  useEffect(() => {
+    localStorage.setItem('quoteType', quoteType)
+  }, [quoteType])
+
+  // Quote selection logic
   const pickNonRepeatingQuote = (category: QuoteCategory) => {
     const categoryQuotes = quotesData[category]
     if (!categoryQuotes || categoryQuotes.length === 0) return "No quotes available."
@@ -22,12 +35,11 @@ export default function Header() {
     return categoryQuotes[index]
   }
 
+  // Quote rotation effect
   useEffect(() => {
-    // Set initial quote
     const initialQuote = pickNonRepeatingQuote(quoteType)
     setCurrentQuote(initialQuote)
 
-    // Rotate quote every 30 seconds
     const interval = setInterval(() => {
       const nextQuote = pickNonRepeatingQuote(quoteType)
       setCurrentQuote(nextQuote)
