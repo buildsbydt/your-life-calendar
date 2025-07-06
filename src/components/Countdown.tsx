@@ -1,59 +1,67 @@
 // src/components/Countdown.tsx
-import React, { useState, useEffect } from 'react'
-import { DateTime } from 'luxon'
-import { motion } from 'framer-motion'
+import React, { useState, useEffect } from 'react';
+import { DateTime } from 'luxon';
+import { motion } from 'framer-motion';
 
 interface CountdownProps {
-  dob: string
-  dod: string
+  dob: string;
+  dod: string;
 }
 
 export default function Countdown({ dob, dod }: CountdownProps) {
   const [timeLeft, setTimeLeft] = useState<{
-    days: number
-    hours: number
-    minutes: number
-    seconds: number
-  }>({ days: 0, hours: 0, minutes: 0, seconds: 0 })
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+  }>({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   // Ensure two-digit display
-  const pad = (n: number) => String(Math.floor(n)).padStart(2, '0')
+  const pad = (n: number) => String(Math.floor(n)).padStart(2, '0');
 
   // Recalculate every second
   useEffect(() => {
-    if (!dod) return
+    if (!dod) return;
     const tick = () => {
-      const now = DateTime.local()
-      const end = DateTime.fromISO(dod)
+      const now = DateTime.local();
+      // **THE FIX**: Use fromFormat to correctly parse the 'dd/MM/yyyy' date string from the UI.
+      const end = DateTime.fromFormat(dod, 'dd/MM/yyyy').plus({ days: 1 }).startOf('day');
+      
+      // Ensure we don't show negative numbers if the date has passed
+      if (now > end) {
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+        return;
+      }
+
       const diff = end
         .diff(now)
         .shiftTo('days', 'hours', 'minutes', 'seconds')
-        .toObject()
+        .toObject();
 
       setTimeLeft({
-        days: diff.days  ?? 0,
+        days: diff.days ?? 0,
         hours: diff.hours ?? 0,
         minutes: diff.minutes ?? 0,
         seconds: diff.seconds ?? 0,
-      })
-    }
-    tick()
+      });
+    };
+    tick();
     const id = setInterval(tick, 1000)
     return () => clearInterval(id)
-  }, [dod])
+  }, [dod]);
 
   // Don’t render until both dates are provided
-  if (!dob || !dod) return null
+  if (!dob || !dod) return null;
 
-  const { days, hours, minutes, seconds } = timeLeft
+  const { days, hours, minutes, seconds } = timeLeft;
 
   // Define your colored cards—only the last one gets "left"
   const units = [
-    { value: days,    label: 'Days',         color: 'bg-indigo-100' },
-    { value: hours,   label: 'Hours',        color: 'bg-green-100'  },
-    { value: minutes, label: 'Minutes',      color: 'bg-yellow-100' },
-    { value: seconds, label: 'Seconds left', color: 'bg-pink-100'   },
-  ]
+    { value: days,   label: 'Days',         color: 'bg-indigo-100' },
+    { value: hours,  label: 'Hours',        color: 'bg-green-100'  },
+    { value: minutes,label: 'Minutes',      color: 'bg-yellow-100' },
+    { value: seconds,label: 'Seconds left', color: 'bg-pink-100'   },
+  ];
 
   return (
     <div className="p-4">
@@ -88,6 +96,5 @@ export default function Countdown({ dob, dod }: CountdownProps) {
         ))}
       </div>
     </div>
-  )
+  );
 }
-

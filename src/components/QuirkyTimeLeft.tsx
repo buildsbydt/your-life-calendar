@@ -1,25 +1,26 @@
 // src/components/QuirkyTimeLeft.tsx
+import React, { useEffect, useState } from 'react'
 import { DateTime } from 'luxon'
-import { useEffect, useState } from 'react'
 
+// Define the three “quirky” metrics
 type QuirkKey = 'fridays' | 'birthdays' | 'olympics'
+
 const Q_OPTIONS: { key: QuirkKey; label: string }[] = [
-  { key: 'fridays',    label: 'Fridays Left' },
-  { key: 'birthdays',  label: 'Birthdays Left' },
-  { key: 'olympics',   label: 'Summer Olympics Left' },
+  { key: 'fridays',   label: 'Fridays Left' },
+  { key: 'birthdays', label: 'Birthdays Left' },
+  { key: 'olympics',  label: 'Summer Olympics Left' },
 ]
 
 interface Props {
-  dob: string    // ISO format, e.g. "1990-06-15"
-  dod: string    // ISO format, e.g. "2080-06-15"
-  hasPremium: boolean
+  dob: string    // ISO, e.g. "1990-06-15"
+  dod: string    // ISO, e.g. "2080-06-15"
 }
 
-export default function QuirkyTimeLeft({ dob, dod, hasPremium }: Props) {
+export default function QuirkyTimeLeft({ dob, dod }: Props) {
   const [selected, setSelected] = useState<QuirkKey>('fridays')
-  const [value, setValue] = useState<number>(0)
+  const [value, setValue]       = useState<number>(0)
 
-  // Count a given weekday between two dates
+  // 1) Count occurrences of a particular weekday between two dates
   function countWeekday(start: DateTime, end: DateTime, weekday: number) {
     let count = 0
     for (let day = start.startOf('day'); day <= end; day = day.plus({ days: 1 })) {
@@ -28,7 +29,7 @@ export default function QuirkyTimeLeft({ dob, dod, hasPremium }: Props) {
     return count
   }
 
-  // Compute based on selected metric
+  // 2) Compute the currently selected metric
   function computeValue(): number {
     const now = DateTime.local()
     const end = DateTime.fromISO(dod)
@@ -36,58 +37,49 @@ export default function QuirkyTimeLeft({ dob, dod, hasPremium }: Props) {
 
     switch (selected) {
       case 'fridays':
-        // 5 = Friday
+        // Friday has weekday number 5
         return countWeekday(now.plus({ days: 1 }), end, 5)
 
-      case 'birthdays':
-        {
-          const birth = DateTime.fromISO(dob)
-          let next = birth.set({ year: now.year })
-          if (next < now) next = next.plus({ years: 1 })
-          let count = 0
-          while (next <= end) {
-            count++
-            next = next.plus({ years: 1 })
-          }
-          return count
-        }
+      case 'birthdays': {
+        const birth = DateTime.fromISO(dob)
+        // Find the next birthday occurrence
+        let next = birth.set({ year: now.year })
+        if (next < now) next = next.plus({ years: 1 })
 
-      case 'olympics':
-        {
-          // Every 4 years on July 1 starting 2024
-          const startYear = now.year
-          const endYear = end.year
-          let cnt = 0
-          for (let y = startYear; y <= endYear; y++) {
-            if ((y - 2024) % 4 === 0 && y >= 2024) {
-              const e = DateTime.fromObject({ year: y, month: 7, day: 1 })
-              if (e > now && e <= end) cnt++
-            }
-          }
-          return cnt
+        // Count until death
+        let count = 0
+        while (next <= end) {
+          count++
+          next = next.plus({ years: 1 })
         }
+        return count
+      }
+
+      case 'olympics': {
+        // Summer Olympics every 4 years on July 1, from 2024 onward
+        const nowYear = now.year
+        const endYear = end.year
+        let cnt = 0
+        for (let y = nowYear; y <= endYear; y++) {
+          if (y >= 2024 && (y - 2024) % 4 === 0) {
+            const olympDate = DateTime.fromObject({ year: y, month: 7, day: 1 })
+            if (olympDate > now && olympDate <= end) cnt++
+          }
+        }
+        return cnt
+      }
     }
   }
 
-  // Recompute on mount or when inputs change
+  // 3) Recompute whenever selection, dob, or dod changes
   useEffect(() => {
     setValue(computeValue())
-    // We deliberately omit computeValue from deps
   }, [selected, dob, dod])
 
-  if (!hasPremium) {
-    return (
-      <div className="p-4 border border-dotted border-gray-400 rounded text-center">
-        <p className="mb-2">Unlock premium metrics:</p>
-        <button className="px-4 py-2 bg-black text-white rounded">
-          Unlock Now
-        </button>
-      </div>
-    )
-  }
-
+  // 4) Render the metric selector and current value
   return (
     <div className="p-4 bg-gray-50 rounded shadow-sm mt-8 max-w-md mx-auto">
+      {/* Buttons to choose which metric to show */}
       <div className="flex justify-center gap-2 mb-4 text-sm">
         {Q_OPTIONS.map(opt => (
           <button
@@ -103,6 +95,8 @@ export default function QuirkyTimeLeft({ dob, dod, hasPremium }: Props) {
           </button>
         ))}
       </div>
+
+      {/* Display the computed value */}
       <div className="text-center">
         <p className="text-2xl font-semibold">{value}</p>
         <p className="text-sm text-gray-600">
@@ -112,3 +106,4 @@ export default function QuirkyTimeLeft({ dob, dod, hasPremium }: Props) {
     </div>
   )
 }
+
