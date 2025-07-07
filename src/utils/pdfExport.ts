@@ -1,23 +1,16 @@
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import React from 'react'; // Import React is crucial for React.createElement
+import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { DateTime } from 'luxon';
 
-// Import the component we will be rendering
+// This import must exactly match the filename, including capitalization.
 import PdfPage from '../components/PdfPage';
 
 export async function exportWeeksPdf(dob: string, dod: string) {
-  // --- CONFIGURATION ---
   const YEARS_PER_PAGE = 15;
-
-  // --- SETUP ---
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'pt',
-    format: 'a4',
-  });
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'pt', format: 'a4' });
   
   const birth = DateTime.fromISO(dob);
   const death = DateTime.fromISO(dod);
@@ -34,13 +27,10 @@ export async function exportWeeksPdf(dob: string, dod: string) {
   document.body.appendChild(renderContainer);
   const reactRoot = createRoot(renderContainer);
 
-  // --- PAGE-BY-PAGE RENDERING LOOP ---
   for (let i = 0; i < totalPages; i++) {
     const startYearIndex = i * YEARS_PER_PAGE;
     const endYearIndex = Math.min((i + 1) * YEARS_PER_PAGE, totalYears);
 
-    // **THE FIX**: This creates the component without using JSX tags.
-    // This is plain TypeScript and will not cause a build error.
     const pageElement = React.createElement(PdfPage, {
       dob,
       dod,
@@ -50,7 +40,6 @@ export async function exportWeeksPdf(dob: string, dod: string) {
       isLastPage: i === totalPages - 1,
     });
 
-    // Render the element we just created.
     flushSync(() => {
       reactRoot.render(pageElement);
     });
@@ -61,22 +50,26 @@ export async function exportWeeksPdf(dob: string, dod: string) {
     });
 
     const pageW = pdf.internal.pageSize.getWidth();
-    const pageH = pdf.internal.pageSize.getHeight();
+    const pageH = pdf.internal.pageSize.getHeight(); // This line is now used
     const imgData = canvas.toDataURL('image/png');
     const imgProps = pdf.getImageProperties(imgData);
     const imgW = pageW;
     const imgH = (imgProps.height * imgW) / imgProps.width;
 
-    if (i > 0) {
-      pdf.addPage();
+    // This logic ensures the image isn't stretched and fits on the page
+    const pageRatio = pageW / pageH;
+    const imgRatio = imgW / imgH;
+    let finalImgH = imgH;
+    if (imgRatio > pageRatio) {
+        finalImgH = pageW / imgRatio;
     }
 
-    pdf.addImage(imgData, 'PNG', 0, 0, imgW, imgH);
+    if (i > 0) pdf.addPage();
+    pdf.addImage(imgData, 'PNG', 0, 0, pageW, finalImgH);
   }
 
-  // --- CLEANUP AND SAVE ---
   reactRoot.unmount();
   renderContainer.remove();
-  pdf.save('weeks-calendar.pdf');
+  pdf.save('your-life-calendar.pdf');
 }
 
