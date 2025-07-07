@@ -7,6 +7,7 @@ import QuirkyTimeLeft from './components/QuirkyTimeLeft';
 import WeeksGrid from './components/WeeksGrid';
 import TipJar from './components/TipJar';
 import { exportWeeksPdf } from './utils/pdfExport';
+import PrivacyPolicy from './components/PrivacyPolicy'; // Import the new component
 
 // Define a type for our countdown data
 type CountdownData = {
@@ -20,6 +21,8 @@ function App() {
   
   const [showMetrics, setShowMetrics] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  // **NEW**: State to control the visibility of the privacy policy
+  const [isPolicyVisible, setIsPolicyVisible] = useState(false);
 
   // This function now receives the data from the form and sets our new state
   const handleSubmit = (data: { dob: string; dod: string }) => {
@@ -77,6 +80,10 @@ function App() {
                 >
                   {isExporting ? 'Generating PDF...' : 'Export Full Calendar as PDF'}
                 </button>
+                {/* NOTE ABOUT FREE PDF ADDED HERE */}
+                <p className="text-xs text-gray-500 mt-2">
+                  Download a free, high-quality PDF of your calendar!
+                </p>
               </div>
               <div className="mt-4">
                 <TipJar />
@@ -85,6 +92,23 @@ function App() {
           )}
         </div>
       )}
+
+      {/* FOOTER SECTION UPDATED HERE */}
+      <footer className="w-full mt-16 border-t pt-8 text-center">
+        <button 
+          onClick={() => setIsPolicyVisible(!isPolicyVisible)}
+          className="text-sm text-gray-600 underline hover:text-blue-600"
+        >
+          {isPolicyVisible ? 'Hide' : 'Show'} Privacy Policy & Contact
+        </button>
+
+        {/* The Privacy Policy will now only appear when the button is clicked */}
+        {isPolicyVisible && (
+          <div className="mt-4">
+            <PrivacyPolicy />
+          </div>
+        )}
+      </footer>
     </div>
   );
 }
