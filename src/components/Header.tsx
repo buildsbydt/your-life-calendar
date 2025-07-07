@@ -50,6 +50,11 @@ export default function Header() {
 
   return (
     <header className="text-center mt-6 mb-4 px-4">
+      {/* FONT CLASS UPDATED HERE */}
+      <h1 className="text-5xl font-covered-by-your-grace text-gray-800 mb-8">
+        Your life Calendar
+      </h1>
+
       <p className="text-xl md:text-2xl font-medium italic max-w-3xl mx-auto mb-4">
         “{currentQuote}”
       </p>

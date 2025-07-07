@@ -1,16 +1,19 @@
 /** @type {import('tailwindcss').Config} */
-module.exports = {
-  // 1) Tell Tailwind where to find your templates:
+export default {
   content: [
-    './index.html',
-    './src/**/*.{js,ts,jsx,tsx}'
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
   ],
-
-  // 2) (Optional) Extend the default theme here:
   theme: {
-    extend: {},
+    extend: {
+      // Add the new font family here
+      fontFamily: {
+        'covered-by-your-grace': ['"Covered By Your Grace"', 'cursive'],
+        // You can keep old fonts here if you want to switch between them
+        'indie-flower': ['"Indie Flower"', 'cursive'],
+        'rubik-80s-fade': ['"Rubik 80s Fade"', 'system-ui'],
+      },
+    },
   },
-
-  // 3) No extra plugins needed for now:
   plugins: [],
 }
