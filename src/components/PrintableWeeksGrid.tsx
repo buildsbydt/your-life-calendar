@@ -9,7 +9,6 @@ interface PrintableProps extends WeeksGridProps {
   isLastPage: boolean;
 }
 
-// Helper function remains the same
 function buildWeekArray(dob: DateTime, dod: DateTime) {
   const now = DateTime.local();
   const start = dob.startOf('week');
@@ -29,8 +28,15 @@ function buildWeekArray(dob: DateTime, dod: DateTime) {
 }
 
 const PrintableWeeksGrid = ({ dob, dod, startYearIndex, endYearIndex, isFirstPage, isLastPage }: PrintableProps) => {
+  // **THE FIX**: Use fromISO, which correctly parses the 'YYYY-MM-DD' format.
   const birth = DateTime.fromISO(dob);
-  const death = DateTime.fromFormat(dod, 'dd/MM/yyyy');
+  const death = DateTime.fromISO(dod);
+
+  // Stop if dates are invalid to prevent crashing the PDF export
+  if (!birth.isValid || !death.isValid) {
+    return <div className="p-8 text-red-500">Error: Invalid date format provided. Please check your inputs.</div>;
+  }
+
   const allWeeks = buildWeekArray(birth, death);
   const totalYears = Math.ceil(allWeeks.length / 52);
   const livedWeeks = allWeeks.filter(w => w.status !== 'future').length;
@@ -50,49 +56,36 @@ const PrintableWeeksGrid = ({ dob, dod, startYearIndex, endYearIndex, isFirstPag
   const yearsToRender = allYears.slice(startYearIndex, endYearIndex);
 
   const boxSize = '1.5rem';
-  const yearLabelWidth = '5rem';
+  const yearLabelWidth = '4.8rem'; // Adjusted for better centering
   const gridGap = '0.5rem';
 
   return (
-    // The main container for a single page
     <div className="bg-white p-8">
-      {/* This inner div provides the border and consistent padding */}
       <div className="border border-gray-300 p-6 flex flex-col items-center">
-        
-        {/* **FIX**: Add top margin/padding on pages that are NOT the first page */}
         {!isFirstPage && <div className="h-16" />}
-
-        {/* Header - only appears on the first page */}
         {isFirstPage && (
           <div className="text-center mb-8">
-            {/* **FIX**: Increased text size and made color uniform */}
-            <h2 className="text-5xl font-bold text-black">
+            <h2 className="text-3xl font-bold text-black">
               Your Life in Weeks
             </h2>
-            <p className="text-lg text-black mt-5">
+            <p className="text-lg text-black mt-2">
               {livedWeeks} weeks lived, {remaining} weeks remaining
             </p>
-            <p className="text-lg text-black mt-1">
+            <p className="text-base text-black mt-1">
               as of {todayFormatted}
             </p>
           </div>
         )}
-
-        {/* Grid Container */}
         <div className="max-w-max space-y-4">
           {yearsToRender.map(({ label, weeks }) => {
             const firstHalf = weeks.slice(0, 26);
             const secondHalf = weeks.slice(26);
-            
-            // **FIX FOR CENTERING**: We add an invisible spacer on the right of the grid
-            // to perfectly balance the year label on the left.
             const gridStyle = {
               display: 'grid',
               gap: gridGap,
               gridTemplateColumns: `${yearLabelWidth} repeat(26, ${boxSize}) ${yearLabelWidth}`,
               gridAutoRows: boxSize,
             };
-
             return (
               <div key={label} className="space-y-2">
                 <div style={gridStyle}>
@@ -103,24 +96,22 @@ const PrintableWeeksGrid = ({ dob, dod, startYearIndex, endYearIndex, isFirstPag
                     if (w.status === 'current') return <div key={i} className={`${base} border-2 border-blue-600`} />;
                     return <div key={i} className={`${base} border border-black`} />;
                   })}
-                  <div /> {/* Invisible spacer div */}
+                  <div />
                 </div>
                 <div style={gridStyle}>
-                  <div className="invisible">{label}</div> {/* Invisible label for alignment */}
+                  <div className="invisible">{label}</div>
                   {secondHalf.map((w, i) => {
                     const base = 'w-full h-full';
                     if (w.status === 'past') return <div key={i} className={`${base} bg-black`} />;
                     if (w.status === 'current') return <div key={i} className={`${base} border-2 border-blue-600`} />;
                     return <div key={i} className={`${base} border border-black`} />;
                   })}
-                  <div /> {/* Invisible spacer div */}
+                  <div />
                 </div>
               </div>
             );
           })}
         </div>
-        
-        {/* RIP message - only appears on the last page */}
         {isLastPage && (
           <div className="mt-8 text-center">
               <p className="text-lg font-serif italic text-gray-800">Rest in Peace</p>
@@ -133,4 +124,3 @@ const PrintableWeeksGrid = ({ dob, dod, startYearIndex, endYearIndex, isFirstPag
 };
 
 export default PrintableWeeksGrid;
-

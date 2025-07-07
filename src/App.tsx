@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import './App.css';
 import Header from './components/Header';
 import Form from './components/Form';
@@ -6,34 +6,35 @@ import Countdown from './components/Countdown';
 import QuirkyTimeLeft from './components/QuirkyTimeLeft';
 import WeeksGrid from './components/WeeksGrid';
 import TipJar from './components/TipJar';
+import { exportWeeksPdf } from './utils/pdfExport';
 
-// **UPDATED**: Only need the export function
-import { exportWeeksPdf } from './utils/pdfExport'; 
+// Define a type for our countdown data
+type CountdownData = {
+  dob: string;
+  dod: string;
+};
 
 function App() {
-  const [dob, setDob] = useState<string>('1990-01-01'); // Using example dates for demo
-  const [dod, setDod] = useState<string>('2080-01-01');
-  const [showMetrics, setShowMetrics] = useState(false); // Default to true for demo
-
-  // **NEW**: State to manage the button's disabled status
+  // This state will hold the data ONLY after the user clicks "Start Countdown"
+  const [countdownData, setCountdownData] = useState<CountdownData | null>(null);
+  
+  const [showMetrics, setShowMetrics] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
 
+  // This function now receives the data from the form and sets our new state
   const handleSubmit = (data: { dob: string; dod: string }) => {
-    setDob(data.dob);
-    setDod(data.dod);
-    setShowMetrics(false); 
+    setCountdownData(data);
+    setShowMetrics(false); // Reset metrics visibility on new submission
   };
 
-  // The export handler is now much simpler
   const handleExport = async () => {
-    if (isExporting || !dob || !dod) return;
+    if (isExporting || !countdownData) return;
 
     setIsExporting(true);
     try {
-      await exportWeeksPdf(dob, dod);
+      await exportWeeksPdf(countdownData.dob, countdownData.dod);
     } catch (error) {
       console.error("Failed to export PDF:", error);
-      // You could show an error message to the user here
     } finally {
       setIsExporting(false);
     }
@@ -46,12 +47,14 @@ function App() {
       </div>
 
       <div className="w-full max-w-lg">
+        {/* The form's onSubmit now calls our updated handleSubmit function */}
         <Form onSubmit={handleSubmit} />
       </div>
 
-      {dob && dod && (
+      {/* This entire section will now ONLY render if countdownData has been set */}
+      {countdownData && (
         <div className="w-full max-w-2xl mt-12 text-center">
-          <Countdown dob={dob} dod={dod} />
+          <Countdown dob={countdownData.dob} dod={countdownData.dod} />
 
           <button
             onClick={() => setShowMetrics(v => !v)}
@@ -62,11 +65,10 @@ function App() {
 
           {showMetrics && (
             <div className="mt-8 space-y-8">
-              <QuirkyTimeLeft dob={dob} dod={dod} />
+              <QuirkyTimeLeft dob={countdownData.dob} dod={countdownData.dod} />
               <div className="border rounded overflow-x-auto pr-2">
-                <WeeksGrid dob={dob} dod={dod} />
+                <WeeksGrid dob={countdownData.dob} dod={countdownData.dod} />
               </div>
-
               <div className="mt-4">
                 <button
                   onClick={handleExport}
@@ -76,7 +78,6 @@ function App() {
                   {isExporting ? 'Generating PDF...' : 'Export Full Calendar as PDF'}
                 </button>
               </div>
-
               <div className="mt-4">
                 <TipJar />
               </div>
@@ -89,5 +90,3 @@ function App() {
 }
 
 export default App;
-
-
