@@ -41,6 +41,11 @@ export default function Form({ onSubmit }: Props) {
         />
       </label>
 
+      {/* Preset instructions */}
+      <p className="text-center italic text-xl text-gray-700 font-covered-by-your-grace">
+        Choose your own date of death or try a preset below!
+      </p>
+
       {/* Default-age buttons */}
       <div className="flex space-x-2">
         {defaults.map(age => (
@@ -56,10 +61,6 @@ export default function Form({ onSubmit }: Props) {
         ))}
       </div>
 
-      {/* Preset instructions */}
-      <p className="text-center italic text-xl text-gray-700 font-covered-by-your-grace">
-        Choose your own date of death or try a preset below!
-      </p>
 
       {/* Date of Death */}
       <label className="block">
