@@ -1,4 +1,3 @@
-// 'React' import removed as it's not needed in modern React
 import { useState } from 'react';
 import './App.css';
 import Header from './components/Header';
@@ -6,7 +5,6 @@ import Form from './components/Form';
 import Countdown from './components/Countdown';
 import QuirkyTimeLeft from './components/QuirkyTimeLeft';
 import WeeksGrid from './components/WeeksGrid';
-import TipJar from './components/TipJar';
 import { exportWeeksPdf } from './utils/pdfExport';
 import PrivacyPolicy from './components/PrivacyPolicy';
 
@@ -73,9 +71,7 @@ function App() {
                   Download a free, high-quality PDF of your calendar!
                 </p>
               </div>
-              <div className="mt-4">
-                <TipJar />
-              </div>
+              {/* THE TIP JAR COMPONENT HAS BEEN REMOVED FROM HERE */}
             </div>
           )}
         </div>
