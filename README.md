@@ -63,7 +63,7 @@ To run this project on your local machine, follow these steps:
 
 Contributing
 
-Contributions are welcome! This project is open-source, and we encourage you to help improve it. Whether it's fixing a bug, adding a feature, or improving documentation, your help is appreciated.
+Contributions are welcome! This project is open-source. Whether it's fixing a bug, adding a feature, or improving documentation, your help is appreciated.
 
 To contribute, please follow this workflow:
 1.  Fork the repository.
