@@ -9,7 +9,9 @@ Introduction
 
 "Your Life Calendar" is a web application inspired by a desire to make the most of the time we have left in life. It provides a powerful visualisation of your life in weeks, helping you to appreciate the time you have. By entering your date of birth and an estimated life expectancy, you can see how many weeks you've lived and how many you might have left.
 
-The core philosophy of this project is privacy-first. All calculations are performed directly in your browser. No personal data (like your date of birth) is ever stored, saved, or sent to a server.
+The core philosophy of this project is privacy-first. All calculations are performed directly in your browser. No personal data (like your date of birth) is ever stored, saved, or sent to a server. The site uses Vercel's cookieless, anonymised analytics to understand aggregate usage and monitor performance; see the in-app Privacy Policy for details.
+
+This is a personal showcase project, so while issues are welcome, you're not guaranteed a response.
 
 Key Features
 
@@ -18,7 +20,7 @@ Live Countdown: A real-time countdown to your estimated end date, broken down in
 Quirky Metrics: Get a unique perspective on your remaining time with unconventional metrics like "Fridays Left," "Birthdays Left," and "Summer Olympics Left."
 Inspirational Quotes: Choose from several categories of quotes (Motivational, Stoic, Funny, Brutal) to keep you inspired. Your preference is saved locally for your next visit.
 High-Quality PDF Export: Download a print-ready PDF of your full life calendar, perfect for reflection or as a physical reminder.
-100% Private: Your dates are only used for in-browser calculations and are immediately gone when you close the tab. The application does not use cookies or tracking services for personal data.
+Privacy-First: Your dates are only used for in-browser calculations and are immediately gone when you close the tab. The site does not set cookies. Aggregated, anonymised usage and performance data is collected via Vercel Web Analytics and Vercel Speed Insights (no cookies, no personal identifiers); see the in-app Privacy Policy for full disclosure.
 
 Technology Stack
 

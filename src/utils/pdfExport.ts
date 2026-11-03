@@ -5,7 +5,7 @@ import { createRoot } from 'react-dom/client';
 import { flushSync } from 'react-dom';
 import { DateTime } from 'luxon';
 
-// This import must exactly match the filename, including capitalization.
+// This import must exactly match the filename, including capitalisation.
 import PdfPage from '../components/PdfPage';
 
 export async function exportWeeksPdf(dob: string, dod: string) {
