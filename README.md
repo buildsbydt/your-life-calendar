@@ -1,3 +1,6 @@
+![CI](https://github.com/buildsbydt/your-life-calendar/actions/workflows/ci.yml/badge.svg)
+
+
 Your Life Calendar
 
 Live Demo: https://yourlifecalendar.co.uk
